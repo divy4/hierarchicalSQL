@@ -1,8 +1,10 @@
 <?php
 namespace hierarchicalSQL_Test;
 
-require hierarchicalSQL;
+require 'hierarchicalSQL.php';
+use hierarchicalSQL;
 
 Print("Starting tests...\n");
+
 
 ?>
