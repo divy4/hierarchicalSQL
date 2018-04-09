@@ -109,13 +109,13 @@ function depth($query, $brackets) {
  * @param [Integer] $maxSubQueries The maximum number of subqueries (i.e. the number of $baseParser calls) the query can contain.
  */
 function validQuery($query, $brackets, $operators, $maxDepth, $maxSubqueries) {
-    if (!validBrackets($query, $brackets)) {
-        return false;
-    }
     if (depth($query, $brackets) != $maxDepth) {
         return false;
+    } elseif (!validBrackets($query, $brackets)) {
+        return false;
+    } elseif (validOperators($query, $brackets, $operators)) {
+        return false;
     }
-    
     return true;
 }
 
