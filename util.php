@@ -1,33 +1,37 @@
 <?php
 namespace hierarchicalSQL;
 
-
 /**
  * Tests if a every bracket in a query is properly matched to its pair.
  *
  * @param [String] $query The text of a query.
  * @param [Array[String => String]] $brackets An associative array that maps an openning bracket to it's closing bracket.
- * @return void
+ * @return true if query has valid brackets.
  */
-function validateBrackets($query, $brackets) {
+function validBrackets($query, $brackets) {
     $seenBrackets = new \SplStack();
     $qLen = strlen($query);
     // for char in query
     for ($i = 0; $i < $qLen; $i++) {
-        $char = $query[$i];
+        $bracket = $query[$i];
         // open parenthesis
-        if (array_key_exists($char, $brackets)) {
-            $seenBrackets->push($char);
+        if (array_key_exists($bracket, $brackets)) {
+            $seenBrackets->push($bracket);
         // close parenthesis
-        } elseif (in_array($char, $brackets)) {
-            // extra bracket
+        } elseif (in_array($bracket, $brackets)) {
+            // too many closings
             if ($seenBrackets->count() == 0) {
-
+                return false;
             }
+            // last bracket is opener and is paired with current bracket
             $lastBracket = $seenBrackets->pop();
+            if (!array_key_exists($lastBracket, $brackets) || $brackets[$lastBracket] != $bracket) {
+                return false;
+            }
         }
     }
-    
+    // too many openings
+    return $seenBrackets->count() == 0;
 }
 
 
