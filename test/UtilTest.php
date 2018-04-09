@@ -11,7 +11,8 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
         $this->brackets = array('(' => ')',
                   '[' => ']',
                   '{' => '}');
-        $this->operators = array('AND' => 'MAX(t1.score, t2.score)');
+        $this->operators = array('AND' => 't1.score * t2.score',
+                                 'OR' => 'MAX(t1.score, t2.score)');
     }
 
     public function testValidBrackets() {
@@ -31,8 +32,19 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 
     public function testDepth() {
         $this->assertEquals(0, depth("", $this->brackets));
-        $this->assertEquals(0, depth("()()", $this->brackets));
-        $this->assertEquals(0, depth("(()())(())", $this->brackets));
+        $this->assertEquals(1, depth("()()", $this->brackets));
+        $this->assertEquals(2, depth("(()())(())", $this->brackets));
+    }
+
+    public function testValidOperator() {
+        // no operators
+        $this->assertTrue(validOperators("asdf asdf", $this->brackets, $this->operators));
+        // all valid operator with space
+        $this->assertTrue(validOperators("(asdf) AND (asdf)", $this->brackets, $this->operators));
+        // all valid operator without space
+        $this->assertTrue(validOperators("(asdf)OR(asdf)", $this->brackets, $this->operators));
+        // invalid operator
+        $this->assertFalse(validOperators("(asdf)NOT(asdf)", $this->brackets, $this->operators));
     }
 
 }
