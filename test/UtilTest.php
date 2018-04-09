@@ -30,13 +30,7 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
         $this->assertFalse(validBrackets("())", $this->brackets));
     }
 
-    public function testDepth() {
-        $this->assertEquals(0, depth("", $this->brackets));
-        $this->assertEquals(1, depth("()()", $this->brackets));
-        $this->assertEquals(2, depth("(()())(())", $this->brackets));
-    }
-
-    public function testValidOperator() {
+    public function testValidOperators() {
         // no operators
         $this->assertTrue(validOperators("asdf asdf", $this->brackets, $this->operators));
         // all valid operator with space
@@ -45,6 +39,19 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue(validOperators("(asdf)OR(asdf)", $this->brackets, $this->operators));
         // invalid operator
         $this->assertFalse(validOperators("(asdf)NOT(asdf)", $this->brackets, $this->operators));
+    }
+
+    public function testDepth() {
+        $this->assertEquals(0, depth("", $this->brackets));
+        $this->assertEquals(1, depth("()()", $this->brackets));
+        $this->assertEquals(2, depth("(()())(())", $this->brackets));
+    }
+
+    public function testNumSubqueries() {
+        $this->assertEquals(1, numSubqueries("asdf", $this->brackets));
+        $this->assertEquals(1, numSubqueries("(asdf)", $this->brackets));
+        $this->assertEquals(2, numSubqueries("(asdf) AND (asdf)", $this->brackets));
+        $this->assertEquals(2, numSubqueries("((asdf) AND (asdf))", $this->brackets));
     }
 
 }
