@@ -16,17 +16,23 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 
     public function testValidBrackets() {
         // no brackets/non bracket chars
-        $this->assertTrue(\hierarchicalSQL\validBrackets("asdf", $this->brackets));
+        $this->assertTrue(validBrackets("asdf", $this->brackets));
         // all brackets
-        $this->assertTrue(\hierarchicalSQL\validBrackets("([{}])", $this->brackets));
+        $this->assertTrue(validBrackets("([{}])", $this->brackets));
         // adjacent pairs
-        $this->assertTrue(\hierarchicalSQL\validBrackets("(()())", $this->brackets));
+        $this->assertTrue(validBrackets("(()())", $this->brackets));
         // wrong order
-        $this->assertFalse(\hierarchicalSQL\validBrackets("([)]", $this->brackets));
+        $this->assertFalse(validBrackets("([)]", $this->brackets));
         // too many opens
-        $this->assertFalse(\hierarchicalSQL\validBrackets("(()", $this->brackets));
+        $this->assertFalse(validBrackets("(()", $this->brackets));
         // too many closes
-        $this->assertFalse(\hierarchicalSQL\validBrackets("())", $this->brackets));
+        $this->assertFalse(validBrackets("())", $this->brackets));
+    }
+
+    public function testDepth() {
+        $this->assertEquals(0, depth("", $this->brackets));
+        $this->assertEquals(0, depth("()()", $this->brackets));
+        $this->assertEquals(0, depth("(()())(())", $this->brackets));
     }
 
 }
