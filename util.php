@@ -34,9 +34,34 @@ function validBrackets($query, $brackets) {
     return $seenBrackets->count() == 0;
 }
 
+/**
+ * Calculates the depth of a query.
+ *
+ * @param [String] $query The text of a query.
+ * @param [Array[String => String]] $brackets An associative array that maps an openning bracket to it's closing bracket.
+ * @return int
+ */
+function depth($query, $brackets) {
+    $depth = 0;
+    $max = 0;
+    $qLen = strlen($query);
+    // for char in query
+    for ($i = 0; $i < $qLen; $i++) {
+        $bracket = $query[$i];
+        // open parenthesis
+        if (array_key_exists($bracket, $brackets)) {
+            $depth++;
+            $max = max($max, $depth);
+        // close parenthesis
+        } elseif (in_array($bracket, $brackets)) {
+            $depth--;
+        }
+    }
+}
+
 
 /**
- * Tests if a query can be parsed. No action is taken when $query is valid, otherwise, an Exception with a descriptive string will be thrown.
+ * Tests if a query can be parsed.
  *
  * @param [String] $query The text of a query.
  * @param [Array[String => String]] $brackets An associative array that maps an openning bracket to it's closing bracket.
@@ -44,8 +69,14 @@ function validBrackets($query, $brackets) {
  * @param [Integer] $maxDepth The maximum depth of brackets the query can contain.
  * @param [Integer] $maxSubQueries The maximum number of subqueries (i.e. the number of $baseParser calls) the query can contain.
  */
-function validateQuery($query, $brackets, $operators, $maxDepth, $maxSubqueries) {
-    \hierarchicalSQL\validateBrackets($query, $brackets);
+function valideQuery($query, $brackets, $operators, $maxDepth, $maxSubqueries) {
+    if (!validBrackets($query, $brackets)) {
+        return false;
+    }
+    if (depth($query, $brackets) != $maxDepth) {
+        return false;
+    }
+    return true;
 }
 
 
