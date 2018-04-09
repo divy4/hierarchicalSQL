@@ -1,6 +1,6 @@
 <?php
 namespace hierarchicalSQL;
-require 'hierarchicalSQL.php';
+require 'util.php';
 
 class UtilTest extends \PHPUnit\Framework\TestCase {
 
