@@ -98,6 +98,35 @@ function depth($query, $brackets) {
     return $max;
 }
 
+/**
+ * Calculates the number of subqueries in a query. i.e. every instance of (*), where ( is an opening bracket, ) is a closing bracket, and * doesn't contain a bracket.
+ *
+ * @param [String] $query The text of a query.
+ * @param [Array[String => String]] $brackets An associative array that maps an openning bracket to it's closing bracket.
+ * @return int
+ */
+function numSubqueries($query, $brackets) {
+    $lastOpIsOpen = false;
+    $subqueries = 0;
+    $qLen = strlen($query);
+    // for char in query
+    for ($i = 0; $i < $qLen; $i++) {
+        $bracket = $query[$i];
+        // open bracket
+        if (array_key_exists($bracket, $brackets)) {
+            $lastOpIsOpen = true;
+        // close bracket
+        } elseif (in_array($bracket, $brackets)) {
+            // only count query if last bracket was an opening
+            if ($lastOpIsOpen) {
+                $lastOpIsOpen = false;
+                $subqueries++;
+            }
+        }
+    }
+    // mininum number of subqueries is 1, since every tree has at least 1 leaf.
+    return max(1, $subqueries);
+}
 
 /**
  * Tests if a query can be parsed.
@@ -106,10 +135,12 @@ function depth($query, $brackets) {
  * @param [Array[String => String]] $brackets An associative array that maps an openning bracket to it's closing bracket.
  * @param [Array[String => String]] $operators An associative Array that maps an operator's string (e.g. 'OR') to a string that represents how the "score" column should be calculated in SQL when preforming a natural join between tables t1 and t2 that both contain a "score" column.
  * @param [Integer] $maxDepth The maximum depth of brackets the query can contain.
- * @param [Integer] $maxSubQueries The maximum number of subqueries (i.e. the number of $baseParser calls) the query can contain.
+ * @param [Integer] $maxSubqueries The maximum number of subqueries (i.e. the number of $baseParser calls) the query can contain.
  */
 function validQuery($query, $brackets, $operators, $maxDepth, $maxSubqueries) {
     if (depth($query, $brackets) != $maxDepth) {
+        return false;
+    } elseif (numSubqueries($query, $brackets) > $maxSubqueries) {
         return false;
     } elseif (!validBrackets($query, $brackets)) {
         return false;
