@@ -14,7 +14,7 @@ require 'util.php';
  *      Every opening bracket must be followed by it's closing counterpart
  *          without any other brackets between them unless those brackets also meet this requirement.
  * Operators:
- *      An operator is a single or multi-character string that denotes a logical/numerical operator that defines how the scores of different subqueries should be joined.
+ *      An operator is a single or multi-character string that denotes a associative logical/numerical operator that defines how the scores of different subqueries should be joined.
  *      An operator can't contain any brackets.
  *      An operator can't contain whitespace unless non-whitespace characters appear at some point before and after it.
  *  
@@ -37,7 +37,7 @@ require 'util.php';
  * @return SQLQuery object.
  */
 function parseStrictQuery($query, $baseParser, $brackets, $operators) {
-
+    
 }
 
 /**
