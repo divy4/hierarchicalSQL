@@ -22,7 +22,7 @@ require 'util.php';
  * @return SQLQuery object.
  */
 function parseStrictQuery($query, $baseParser, $brackets, $operators) {
-
+    return null;
 }
 
 /**
@@ -44,7 +44,7 @@ function queryToSQL($query, $baseParser, $brackets, $operators, $maxDepth, $maxS
         return null;
     }
     // parse query
-    return null;
+    return parseStrictQuery($query, $baseParser, $brackets, $operators).toString();
 }
 
 ?>
