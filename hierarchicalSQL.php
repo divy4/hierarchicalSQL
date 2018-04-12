@@ -5,6 +5,21 @@ require 'util.php';
 
 /**
  * Strict query format guidelines:
+ * Brackets:
+ *      A bracket is a single, unique character that seperates queries between operators.
+ *      Every bracket pair must have an opening and closing bracket. e.g. '(' and ')'.
+ *      No bracket can be part of 2 different pairs of brackets.
+ *      No bracket can be an opening and closing bracket.
+ *      No two brackets of different pairs can me matched together.
+ *      Every opening bracket must be followed by it's closing counterpart
+ *          without any other brackets between them unless those brackets also meet this requirement.
+ * Operators:
+ *      An operator is a single or multi-character string that denotes a associative logical/numerical operator that defines how the scores of different subqueries should be joined.
+ *      An operator can't contain any brackets.
+ *      An operator can't contain whitespace unless non-whitespace characters appear at some point before and after it.
+ *  
+ * Other:
+ *      All whitespace is ignored except when it's inbetween any non-whitespace characters that are part of an operator.
  * 
  * 
  * Relaxed query format guildlines:
