@@ -67,7 +67,12 @@ class SQLQuery {
             if (is_string($value)) {
                 $value = $this->componentStrToArray($value, $separator);
             }
-            // array
+            // trim whitespace from array
+            $valueSize = count($value);
+            for ($i = 0; $i < $valueSize; $i++) {
+                $value[$i] = \trim($value[$i]);
+            }
+            // set keyword elements
             $this->$partName = $value;
         }
     }
@@ -108,7 +113,7 @@ class SQLQuery {
                         $splitEnd = strpos($str, $separator, $pos+1);
                     } 
                 // not inside parenthesis and at separator
-                } elseif ($depth == 0 && $pos == $splitEnd && is_a($splitEnd, 'int')) {
+                } elseif ($depth == 0 && $pos == $splitEnd && is_int($splitEnd)) {
                     // add substring to array
                     $arr[$arrSize] = substr($str, $splitStart, $splitEnd - $splitStart);
                     $arrSize++;
