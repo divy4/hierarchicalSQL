@@ -19,6 +19,20 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals('SELECT col1,col2 FROM tbl1,tbl2', (string)$query);
     }
 
+    public function testWhitespace() {
+        $query = new SQLQuery(' col1 ', ' tbl1' );
+        $this->assertEquals('SELECT col1 FROM tbl1', (string)$query);
+        $query = new SQLQuery([' col1' ], [' tbl1 ']);
+        $this->assertEquals('SELECT col1 FROM tbl1', (string)$query);
+    }
+
+    public function testWhitespaceMultiple() {
+        $query = new SQLQuery(' col1 , col2 ', ' tbl1 , tbl2 ');
+        $this->assertEquals('SELECT col1,col2 FROM tbl1,tbl2', (string)$query);
+        $query = new SQLQuery([' col1 ', ' col2 '], [' tbl1 ', ' tbl2 ']);
+        $this->assertEquals('SELECT col1,col2 FROM tbl1,tbl2', (string)$query);
+    }
+
     public function testAs() {
         $query = new SQLQuery('col1 as c1', 'tbl1');
         $this->assertEquals('SELECT col1 as c1 FROM tbl1', (string)$query);
