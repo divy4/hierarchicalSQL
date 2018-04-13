@@ -1,7 +1,11 @@
 <?php
-
 namespace hierarchicalSQL;
+require 'SQLQuery.php';
 
-class SQLQuery extends \PHPUnit\Framework\TestCase {
+class SQLQueryTest extends \PHPUnit\Framework\TestCase {
+
+    public function testConstruction() {
+        $query = new SQLQuery([], "");
+    }
     
 }
