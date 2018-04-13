@@ -108,7 +108,7 @@ class SQLQuery {
                         $splitEnd = strpos($str, $separator, $pos+1);
                     } 
                 // not inside parenthesis and at separator
-                } elseif ($depth == 0 && $pos == $splitEnd) {
+                } elseif ($depth == 0 && $pos == $splitEnd && is_a($splitEnd, 'int')) {
                     // add substring to array
                     $arr[$arrSize] = substr($str, $splitStart, $splitEnd - $splitStart);
                     $arrSize++;
@@ -119,9 +119,6 @@ class SQLQuery {
             }
             // add remaining
             $arr[$arrSize] = substr($str, $splitStart, $strLen - $splitStart);
-            print("asdf2:$str\n");
-            print("asdf:" . $this->componentArrayToStr($arr, '---') . "\n");
-            $arr = [$str];
         }
         return $arr;
     }

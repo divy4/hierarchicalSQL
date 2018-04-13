@@ -42,9 +42,9 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
 
     public function testSubQuery() {
         $query = new SQLQuery('col1', '(SELECT col1, col2 FROM tbl2, tbl3) as tbl1');
-        $this->assertEquals('SELECT col1 FROM (SELECT * FROM tbl2) as tbl1', (string)$query);
-        $query = new SQLQuery(['col1'], ['(SELECT * FROM tbl2) as tbl1']);
-        $this->assertEquals('SELECT col1 FROM (SELECT * FROM tbl2) as tbl1', (string)$query);
+        $this->assertEquals('SELECT col1 FROM (SELECT col1, col2 FROM tbl2, tbl3) as tbl1', (string)$query);
+        $query = new SQLQuery(['col1'], ['(SELECT col1, col2 FROM tbl2, tbl3) as tbl1']);
+        $this->assertEquals('SELECT col1 FROM (SELECT col1, col2 FROM tbl2, tbl3) as tbl1', (string)$query);
     }
 
     public function testMixed() {
