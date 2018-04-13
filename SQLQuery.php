@@ -16,9 +16,9 @@ class SQLQuery {
      */
     public function __construct($selectOrText, $from=null, $where=null) {
         if ($from == null) {
-            constructFromText($selectOrText);
+            $this->constructFromText($selectOrText);
         } else {
-            constructFromParts($selectOrText, $from, $where);
+            $this->constructFromParts($selectOrText, $from, $where);
         }
     }
 
@@ -28,7 +28,7 @@ class SQLQuery {
      * @param [String] $text
      * @return void
      */
-    private function constructFromText($text) {
+    private function constructFromText(string $text) {
         throw new Exception("Not implemented!");
     }
 
@@ -45,15 +45,9 @@ class SQLQuery {
      * @return void
      */
     private function constructFromParts($select, $from, $where=null) {
-        // array values
-        setKeywordValues('select', $select);
-        setKeywordValues('from', $from);
-        // single string values
-        if ($where == null) {
-            $this->where = null;
-        } else {
-            $this->where = [$where];
-        }
+        $this->setKeywordValues('select', $select, ',');
+        $this->setKeywordValues('from', $from, ',');
+        $this->setKeywordValues('where', $where, null);
     }
 
     /**
@@ -61,16 +55,17 @@ class SQLQuery {
      *
      * @param [string] $partName The name of the variable being set.
      * @param [null, string, or array[string]] $value The value being set to that variable.
+     * @param [string or null] $separator A string that separates different values if $value is a string. If null, the entire string is considered a single element.
      * @return void
      */
-    private function setKeywordValues($partName, $value) {
+    private function setKeywordValues(string $partName, $value, $separator) {
         // default
         if ($value == null) {
-            $this->$partName = [];
+            $this->$partName = null;
         } else {
             // parse string into array
-            if (is_a($value, 'string')) {
-                $value = componentStrToArray($value);
+            if (is_string($value)) {
+                $value = $this->componentStrToArray($value, $separator);
             }
             // array
             $this->$partName = $value;
@@ -81,10 +76,11 @@ class SQLQuery {
      * Converts a string that matches constructFromParts()'s format A) for an argument into format B)
      *
      * @param [string] $str A string argument for constructFromParts().
+     * @param [string or null] $separator A string that separates different elements in $str. If null, the entire string is considered a single element.
      * @return [array[string]] An array of each element in $str.
      */
-    private function componentStrToArray($str) {
-        //TODO: seperate string by comma
+    private function componentStrToArray(string $str, $separator) {
+        //TODO: seperate string by separator
         return [$str];
     }
 
@@ -94,7 +90,12 @@ class SQLQuery {
      * @param [array[string]] $arr An array of elements from the 
      * @return [string] A string of every element in $arr.
      */
-    private function componentArrayToStr($arr, $separator=',') {
+    private function componentArrayToStr(array $arr, string $separator=',') {
+        if ((string)implode($separator, $arr) == 'Array') {
+            print_r($arr);
+            $val = implode($separator, $arr);
+            //print_r($val);
+        }
         return implode($separator, $arr);
     }
 
@@ -105,12 +106,12 @@ class SQLQuery {
      */
     public function __toString() {
         // required
-        $select = componentArrayToStr($this->select);
-        $from = componentArrayToStr($this->from);
+        $select = $this->componentArrayToStr($this->select);
+        $from = $this->componentArrayToStr($this->from);
         $out = "SELECT $select FROM $from";
         // optional
         if ($this->where != null) {
-            $out = "$out WHERE (" . componentArrayToStr($this->where, ') AND (') . ')';
+            $out = "$out WHERE (" . $this->componentArrayToStr($this->where, ') AND (') . ')';
         }
         return $out;
     }
