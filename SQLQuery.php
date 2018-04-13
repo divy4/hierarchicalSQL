@@ -91,12 +91,36 @@ class SQLQuery {
             $depth = 0;
             $arrSize = 0;
             $splitStart = 0;
+            $splitEnd = strpos($str, $separator); // possible ending for splits
+            $sepLen = strlen($separator);
             // for char in str
-            $qLen = strlen($str);
-            for ($pos = 0; $pos < $qLen; $pos++) {
-                $char = $str[$i];
-                
+            $strLen = strlen($str);
+            for ($pos = 0; $pos < $strLen; $pos++) {
+                $char = $str[$pos];
+                // open parenthesis
+                if ($char == '(') {
+                    $depth++;
+                // close parenthesis
+                } elseif ($char == ')') {
+                    $depth--;
+                    // find next separator if not inside parenthesis
+                    if ($depth == 0) {
+                        $splitEnd = strpos($str, $separator, $pos+1);
+                    } 
+                // not inside parenthesis and at separator
+                } elseif ($depth == 0 && $pos == $splitEnd) {
+                    // add substring to array
+                    $arr[$arrSize] = substr($str, $splitStart, $splitEnd - $splitStart);
+                    $arrSize++;
+                    // find next separator
+                    $splitStart = $splitEnd + $sepLen;
+                    $splitEnd = strpos($str, $separator, $splitEnd + $sepLen);
+                }
             }
+            // add remaining
+            $arr[$arrSize] = substr($str, $splitStart, $strLen - $splitStart);
+            print("asdf2:$str\n");
+            print("asdf:" . $this->componentArrayToStr($arr, '---') . "\n");
             $arr = [$str];
         }
         return $arr;
@@ -112,7 +136,6 @@ class SQLQuery {
         if ((string)implode($separator, $arr) == 'Array') {
             print_r($arr);
             $val = implode($separator, $arr);
-            //print_r($val);
         }
         return implode($separator, $arr);
     }
