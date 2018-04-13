@@ -15,7 +15,6 @@ class SQLQuery {
      * @param [type] $where
      */
     public function __construct($selectOrText, $from=null, $where=null) {
-        print(gettype($selectOrText));
         if ($from == null) {
             constructFromText($selectOrText);
         } else {
@@ -46,7 +45,36 @@ class SQLQuery {
      * @return void
      */
     private function constructFromParts($select, $from, $where=null) {
-        throw new Exception("Not implemented!");
+        // array values
+        setKeywordValues('select', $select);
+        setKeywordValues('from', $from);
+        // single string values
+        if ($where == null) {
+            $this->where = null;
+        } else {
+            $this->where = [$where];
+        }
+    }
+
+    /**
+     * Sets the value for a keyword member variable (i.e. $this->$partName) to the array equivalent of $value.
+     *
+     * @param [string] $partName The name of the variable being set.
+     * @param [null, string, or array[string]] $value The value being set to that variable.
+     * @return void
+     */
+    private function setKeywordValues($partName, $value) {
+        // default
+        if ($value == null) {
+            $this->$partName = [];
+        } else {
+            // parse string into array
+            if (is_a($value, 'string')) {
+                $value = componentStrToArray($value);
+            }
+            // array
+            $this->$partName = $value;
+        }
     }
 
     /**
@@ -56,7 +84,18 @@ class SQLQuery {
      * @return [array[string]] An array of each element in $str.
      */
     private function componentStrToArray($str) {
-        throw new Exception("Not implemented!");
+        //TODO: seperate string by comma
+        return [$str];
+    }
+
+    /**
+     * Converts a string that matches constructFromParts()'s format B) for an argument into format A) 
+     *
+     * @param [array[string]] $arr An array of elements from the 
+     * @return [string] A string of every element in $arr.
+     */
+    private function componentArrayToStr($arr, $separator=',') {
+        return implode($separator, $arr);
     }
 
     /**
@@ -65,7 +104,15 @@ class SQLQuery {
      * @return string
      */
     public function __toString() {
-        return 'SELECT *';
+        // required
+        $select = componentArrayToStr($this->select);
+        $from = componentArrayToStr($this->from);
+        $out = "SELECT $select FROM $from";
+        // optional
+        if ($this->where != null) {
+            $out = "$out WHERE (" . componentArrayToStr($this->where, ') AND (') . ')';
+        }
+        return $out;
     }
 
 }
