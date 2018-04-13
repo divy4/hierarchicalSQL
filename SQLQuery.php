@@ -80,8 +80,26 @@ class SQLQuery {
      * @return [array[string]] An array of each element in $str.
      */
     private function componentStrToArray(string $str, $separator) {
-        //TODO: seperate string by separator
-        return [$str];
+        // remove white space
+        $str = \trim($str);
+        $arr = null;
+        // no separator
+        if ($separator == null) {
+            $arr = [$str];
+        // seperator
+        } else {
+            $depth = 0;
+            $arrSize = 0;
+            $splitStart = 0;
+            // for char in str
+            $qLen = strlen($str);
+            for ($pos = 0; $pos < $qLen; $pos++) {
+                $char = $str[$i];
+                
+            }
+            $arr = [$str];
+        }
+        return $arr;
     }
 
     /**
