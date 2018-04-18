@@ -37,7 +37,41 @@ require 'util.php';
  * @return SQLQuery object.
  */
 function parseStrictQuery($query, $baseParser, $brackets, $operators) {
-    return null;
+    $subqueries = array();
+    $numSubQueries = 0;
+    $start = null;
+    $level = 0;
+    $qLen = strlen($query);
+    // for char in query
+    for ($i = 0; $i < $qLen; $i++) {
+        $char = $query[$i];
+        // open bracket
+        if (array_key_exists($char, $brackets)) {
+            // query starts after bracket
+            if ($level == 0) {
+                $start = $i+1;
+            }
+            $level++;
+        // close bracket
+        } elseif (in_array($char, $brackets)) {
+            $level--;
+            // parse subquery
+            if ($level == 0) {
+                $subqueries[$numSubQueries] = parseStrictQuery(substr($query, $start, $i - $start), $baseParser, $brackets, $operators);
+            }
+        }
+    }
+    // no subqueries: use base parser
+    if ($numSubQueries == 0) {
+        return $baseParser($query);
+    // only 1 sub query: return it
+    } elseif ($numSubQueries) {
+        return $subqueries[0];
+    // multiple subqueries: merge
+    } else {
+        // TODO
+        return null;
+    }
 }
 
 /**

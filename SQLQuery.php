@@ -156,7 +156,7 @@ class SQLQuery {
     public static function merge(SQLQuery $q1, SQLQuery $q2, string $score) {
         $q1Str = (string)$q1;
         $q2Str = (string)$q2;
-        return new SQLQuery(['t1.id', $score], ["($q1Str) as t1", "($q2Str) as t2"]);
+        return new SQLQuery(['t1.id', "($score) as score"], ["($q1Str) as t1", "($q2Str) as t2"]);
     }
 
     /**
