@@ -143,6 +143,23 @@ class SQLQuery {
     }
 
     /**
+     * Merges this and another SQLQuery into a singleSQLQuery.
+     *
+     * @param SQLQuery $q1 The first SQLQuery being merged.
+     * @param SQLQuery $q2 The second SQLQuery being merged.
+     * @param string $score A string that specifies how the scores of the two queries should be merged.
+     *              The string should be considered as a column in a select statement between two tables, 't1' and 't2',
+     *              that both contain the columns 'id' and 'score'. e.g. 't1.score + t2.score'.
+     *              Note that the values t1.id and t2.id are always the same.
+     * @return SQLQuery The merged result.
+     */
+    public static function merge(SQLQuery $q1, SQLQuery $q2, string $score) {
+        $q1Str = (string)$q1;
+        $q2Str = (string)$q2;
+        return new SQLQuery(['t1.id', $score], ["($q1Str) as t1", "($q2Str) as t2"]);
+    }
+
+    /**
      * Prints the text of the SQLQuery.
      *
      * @return string
