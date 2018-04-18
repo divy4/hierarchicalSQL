@@ -1,6 +1,6 @@
 <?php
 namespace hierarchicalSQL;
-
+require 'SQLQuery.php';
 require 'util.php';
 
 /**
@@ -58,11 +58,13 @@ function parseStrictQuery($query, $baseParser, $brackets, $operators) {
             // parse subquery
             if ($level == 0) {
                 $subqueries[$numSubQueries] = parseStrictQuery(substr($query, $start, $i - $start), $baseParser, $brackets, $operators);
+                $numSubQueries++;
             }
         }
     }
     // no subqueries: use base parser
     if ($numSubQueries == 0) {
+        print("\nasdf " . $query . "\n");
         return $baseParser($query);
     // only 1 sub query: return it
     } elseif ($numSubQueries) {
