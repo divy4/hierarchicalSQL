@@ -67,6 +67,13 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testMerge() {
+        $q1 = new SQLQuery('id, score', 'tbl1');
+        $q1Str = (string)$q1;
+        $q2 = new SQLQuery('id, score', 'tbl2');
+        $q2Str = (string)$q2;
+        $score = 't1.score + t2.score';
+        $merged = SQLQuery::merge($q1, $q2, $score);
+        $this->assertEquals("SELECT t1.id,(t1.score + t2.score) as score FROM ($q1Str) as t1,($q2Str) as t2", (string)$merged);
     }
     
 }
