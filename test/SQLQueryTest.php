@@ -65,5 +65,8 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
         $query = new SQLQuery('col1', ['tbl1']);
         $this->assertEquals('SELECT col1 FROM tbl1', (string)$query);
     }
+
+    public function testMerge() {
+    }
     
 }
