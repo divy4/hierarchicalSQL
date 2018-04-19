@@ -38,6 +38,7 @@ require 'util.php';
  */
 function parseStrictQuery($query, $baseParser, $brackets, $operators) {
     $subqueries = array();
+    $seenOperators = array();
     $numSubQueries = 0;
     $start = null;
     $level = 0;
@@ -49,30 +50,38 @@ function parseStrictQuery($query, $baseParser, $brackets, $operators) {
         if (array_key_exists($char, $brackets)) {
             // query starts after bracket
             if ($level == 0) {
+                // add operator
+                if ($numSubQueries > 0) {
+                    $seenOperators[$numSubQueries] = \trim(substr($query, $start, $i - $start));
+                }
                 $start = $i+1;
             }
             $level++;
         // close bracket
         } elseif (in_array($char, $brackets)) {
             $level--;
-            // parse subquery
+            // add subquery
             if ($level == 0) {
                 $subqueries[$numSubQueries] = parseStrictQuery(substr($query, $start, $i - $start), $baseParser, $brackets, $operators);
                 $numSubQueries++;
+                $start = $i + 1;
             }
         }
     }
     // no subqueries: use base parser
     if ($numSubQueries == 0) {
-        print("\nasdf " . $query . "\n");
         return $baseParser($query);
     // only 1 sub query: return it
-    } elseif ($numSubQueries) {
+    } elseif ($numSubQueries == 1) {
         return $subqueries[0];
     // multiple subqueries: merge
     } else {
-        // TODO
-        return null;
+        $merged = $subqueries[0];
+        for ($i = 1; $i < $numSubQueries; $i++) {
+            $scoreFunc = $operators[$seenOperators[$i]];
+            $merged = SQLQuery::merge($merged, $subqueries[$i], $scoreFunc);
+        }
+        return $merged;
     }
 }
 

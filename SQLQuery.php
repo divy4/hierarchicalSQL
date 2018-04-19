@@ -3,33 +3,21 @@ namespace hierarchicalSQL;
 
 class SQLQuery {
 
-    private $select;
+    private $id;
+    private $score;
     private $from;
     private $where;
 
     /**
-     * Undocumented function
+     * Creates a SQLQuery
      *
-     * @param [string] $selectOrText
-     * @param [string] $from
-     * @param [type] $where
+     * @param [string] $id The column that should be used for the id.
+     * @param [stirng] $score The column, function, etc... that should be used for the score
+     * @param [string or array[string]] $from
+     * @param [string or array[string]] $where
      */
-    public function __construct($selectOrText, $from=null, $where=null) {
-        if ($from == null) {
-            $this->constructFromText($selectOrText);
-        } else {
-            $this->constructFromParts($selectOrText, $from, $where);
-        }
-    }
-
-    /**
-     * Constructs a SQLQuery from the text of the entire query.
-     *
-     * @param [String] $text
-     * @return void
-     */
-    private function constructFromText(string $text) {
-        throw new Exception("Not implemented!");
+    public function __construct($id, $score, $from=null, $where=null) {
+        $this->constructFromParts($id, $score, $from, $where);
     }
 
     /**
@@ -39,13 +27,15 @@ class SQLQuery {
      *          B) An array of strings, where each string is an item after the keyword (e.g. 'SELECT id, name as n' would be inputted as ['id', 'name as n'])
      * Note that each parameter contains the infromation after the SQL keyword that shares the same name.
      *
-     * @param [string or array[string]] $select
+     * @param [string] $id The column that should be used for the id.
+     * @param [stirng] $score The column, function, etc... that should be used for the score.
      * @param [string or array[string]] $from
      * @param [string] $where
      * @return void
      */
-    private function constructFromParts($select, $from, $where=null) {
-        $this->setKeywordValues('select', $select, ',');
+    private function constructFromParts($id, $score, $from, $where=null) {
+        $this->id = \trim($id);
+        $this->score = \trim($score);
         $this->setKeywordValues('from', $from, ',');
         $this->setKeywordValues('where', $where, null);
     }
@@ -134,7 +124,7 @@ class SQLQuery {
      * @param [array[string]] $arr An array of elements from the 
      * @return [string] A string of every element in $arr.
      */
-    private function componentArrayToStr(array $arr, string $separator=',') {
+    private function componentArrayToStr(array $arr, string $separator=', ') {
         if ((string)implode($separator, $arr) == 'Array') {
             print_r($arr);
             $val = implode($separator, $arr);
@@ -156,7 +146,8 @@ class SQLQuery {
     public static function merge(SQLQuery $q1, SQLQuery $q2, string $score) {
         $q1Str = (string)$q1;
         $q2Str = (string)$q2;
-        return new SQLQuery(['t1.id', "($score) as score"], ["($q1Str) as t1", "($q2Str) as t2"]);
+        $where = ['t1.id = t2.id'];
+        return new SQLQuery('t1.id', $score, ["($q1Str) AS t1", "($q2Str) AS t2"], $where);
     }
 
     /**
@@ -166,7 +157,7 @@ class SQLQuery {
      */
     public function __toString() {
         // required
-        $select = $this->componentArrayToStr($this->select);
+        $select = $this->componentArrayToStr(["$this->id AS id", "$this->score AS score"]);
         $from = $this->componentArrayToStr($this->from);
         $out = "SELECT $select FROM $from";
         // optional
