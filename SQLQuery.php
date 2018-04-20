@@ -62,6 +62,8 @@ class SQLQuery {
             for ($i = 0; $i < $valueSize; $i++) {
                 $value[$i] = \trim($value[$i]);
             }
+            // sort
+            sort($value);
             // set keyword elements
             $this->$partName = $value;
         }
@@ -126,10 +128,35 @@ class SQLQuery {
      */
     private function componentArrayToStr(array $arr, string $separator=', ') {
         if ((string)implode($separator, $arr) == 'Array') {
-            print_r($arr);
             $val = implode($separator, $arr);
         }
         return implode($separator, $arr);
+    }
+
+    /**
+     * Merges component arrays from SQLQuery objects
+     *
+     * @param [null or array[string]] $arr1 The first component array.
+     * @param [null or array[string]] $arr2 The second component array.
+     * @return void
+     */
+    private static function mergeComponentArrays($arr1, $arr2) {
+        $merged = null;
+        if ($arr1 != null) {
+            $merged = $arr1;
+        }
+        if ($arr2 != null) {
+            if ($merged == null) {
+                $merged = $arr2;
+            } else {
+                $len1 = count($arr1);
+                $len2 = count($arr2);
+                print("\nasdf\n");
+                $merged = $merged + $arr2;
+                sort($merged);
+            }
+        }
+        return $merged;
     }
 
     /**
@@ -144,10 +171,22 @@ class SQLQuery {
      * @return SQLQuery The merged result.
      */
     public static function merge(SQLQuery $q1, SQLQuery $q2, string $score) {
-        $q1Str = (string)$q1;
-        $q2Str = (string)$q2;
-        $where = ['t1.id = t2.id'];
-        return new SQLQuery('t1.id', $score, ["($q1Str) AS t1", "($q2Str) AS t2"], $where);
+        $merged = null;
+        // matching tables
+        if ($q1->id == $q2->id && $q1->from == $q2->from) {
+            // change operator to use values directly from query score functions
+            $score = str_replace("t1.score", "($q1->score)", $score);
+            $score = str_replace("t2.score", "($q2->score)", $score);
+            // merge other components
+            $where = SQLQuery::mergeComponentArrays($q1->where, $q2->where);
+            $merged = new SQLQuery($q1->id, $score, $q1->from, $where);
+        } else {
+            $q1Str = (string)$q1;
+            $q2Str = (string)$q2;
+            $where = ['t1.id = t2.id'];
+            $merged = new SQLQuery('t1.id', $score, ["($q1Str) AS t1", "($q2Str) AS t2"], $where);
+        }
+        return $merged;
     }
 
     /**

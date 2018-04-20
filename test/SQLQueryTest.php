@@ -44,7 +44,7 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
         $query = new SQLQuery('col1', 'col2', 'tbl1', 'col1 > 0 AND col1 < 10');
         $this->assertEquals('SELECT col1 AS id, col2 AS score FROM tbl1 WHERE (col1 > 0 AND col1 < 10)', (string)$query);
         $query = new SQLQuery('col1', 'col2', ['tbl1'], ['col1 > 0', 'col1 < 10']);
-        $this->assertEquals('SELECT col1 AS id, col2 AS score FROM tbl1 WHERE (col1 > 0) AND (col1 < 10)', (string)$query);
+        $this->assertEquals('SELECT col1 AS id, col2 AS score FROM tbl1 WHERE (col1 < 10) AND (col1 > 0)', (string)$query);
     }
 
     public function testMath() {
@@ -67,6 +67,16 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
         $score = 't1.score + t2.score';
         $merged = SQLQuery::merge($q1, $q2, $score);
         $this->assertEquals("SELECT t1.id AS id, t1.score + t2.score AS score FROM ($q1Str) AS t1, ($q2Str) AS t2 WHERE (t1.id = t2.id)", (string)$merged);
+        
+        $q3 = new SQLQuery('col2', 'col3', 'tbl1');
+        $q3Str = (string)$q3;
+        $merged = SQLQuery::merge($q1, $q3, $score);
+        $this->assertEquals("SELECT t1.id AS id, t1.score + t2.score AS score FROM ($q1Str) AS t1, ($q3Str) AS t2 WHERE (t1.id = t2.id)", (string)$merged);
+
+        $q4 = new SQLQuery('col1', 'col3', 'tbl1', 'score < 10');
+        $q4Str = (string)$q4;
+        $merged = SQLQuery::merge($q1, $q4, $score);
+        $this->assertEquals("SELECT cal1 AS id, (col2) + (col3) AS score FROM tbl1 WHERE (score < 10) AND (score > 1)", (string)$merged);
     }
     
 }
