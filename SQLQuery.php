@@ -7,6 +7,8 @@ class SQLQuery {
     private $score;
     private $from;
     private $where;
+    private $having;
+    private $limit;
 
     /**
      * Creates a SQLQuery
@@ -16,10 +18,10 @@ class SQLQuery {
      * @param [string or array[string]] $from The tables being selected.
      * @param [string or array[string]] $where Any constraint for what rows to consider.
      * @param [string or array[string]] $having Any constraint for what rows to return. If this value is not null, "ORDER BY id" will automatically be added to the query.
-     * @param [Integer] $limit
+     * @param [Integer or null] $limit The maximum number of results to return.
      */
     public function __construct(string $id, string $score, $from=null, $where=null, $having=null, $limit=null) {
-        $this->constructFromParts($id, $score, $from, $where);
+        $this->constructFromParts($id, $score, $from, $where, $having, $limit);
     }
 
     /**
@@ -31,15 +33,23 @@ class SQLQuery {
      *
      * @param [string] $id The column that should be used for the id.
      * @param [stirng] $score The column, function, etc... that should be used for the score.
-     * @param [string or array[string]] $from
-     * @param [string] $where
+     * @param [string or array[string]] $from The tables being selected.
+     * @param [string or array[string]] $where Any constraint for what rows to consider.
+     * @param [string or array[string]] $having Any constraint for what rows to return. If this value is not null, "ORDER BY id" will automatically be added to the query.
+     * @param [Integer or null] $limit The maximum number of results to return.
      * @return void
      */
-    private function constructFromParts($id, $score, $from, $where=null) {
+    private function constructFromParts($id, $score, $from, $where=null, $having=null, $limit=null) {
         $this->id = \trim($id);
         $this->score = \trim($score);
         $this->setKeywordValues('from', $from, ',');
         $this->setKeywordValues('where', $where, null);
+        $this->setKeywordValues('having', $having, null);
+        if (is_null($limit)) {
+            $this->limit = null;
+        } else {
+            $this->limit = $limit;
+        }
     }
 
     /**
@@ -201,6 +211,12 @@ class SQLQuery {
         // optional
         if ($this->where != null) {
             $out = "$out WHERE (" . $this->componentArrayToStr($this->where, ') AND (') . ')';
+        }
+        if ($this->having != null) {
+            $out = "$out GROUP BY id HAVING (" . $this->componentArrayToStr($this->where, ') AND (') . ')';
+        }
+        if ($this->limit != null) {
+            $out = "$out LIMIT $this->limit";
         }
         return $out;
     }
