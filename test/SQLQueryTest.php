@@ -47,6 +47,10 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals('SELECT col1 AS id, col2 AS score FROM tbl1 WHERE (col1 < 10) AND (col1 > 0)', (string)$query);
     }
 
+    public function testHaving() {
+        $query = new SQLQuery('col1', 'col2', 'tbl1', null, 'col1 > 0 AND col1 < 10');
+    }
+
     public function testMath() {
         $query = new SQLQuery('col1', 'col2 - col3', 'tbl1');
         $this->assertEquals('SELECT col1 AS id, col2 - col3 AS score FROM tbl1', (string)$query);
