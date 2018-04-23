@@ -13,10 +13,12 @@ class SQLQuery {
      *
      * @param [string] $id The column that should be used for the id.
      * @param [stirng] $score The column, function, etc... that should be used for the score
-     * @param [string or array[string]] $from
-     * @param [string or array[string]] $where
+     * @param [string or array[string]] $from The tables being selected.
+     * @param [string or array[string]] $where Any constraint for what rows to consider.
+     * @param [string or array[string]] $having Any constraint for what rows to return. If this value is not null, "ORDER BY id" will automatically be added to the query.
+     * @param [Integer] $limit
      */
-    public function __construct($id, $score, $from=null, $where=null) {
+    public function __construct(string $id, string $score, $from=null, $where=null, $having=null, $limit=null) {
         $this->constructFromParts($id, $score, $from, $where);
     }
 
@@ -146,13 +148,10 @@ class SQLQuery {
             $merged = $arr1;
         }
         if ($arr2 != null) {
-            if ($merged == null) {
+            if ($arr1 == null) {
                 $merged = $arr2;
             } else {
-                $len1 = count($arr1);
-                $len2 = count($arr2);
-                print("\nasdf\n");
-                $merged = $merged + $arr2;
+                $merged = array_merge($arr1, $arr2);
                 sort($merged);
             }
         }

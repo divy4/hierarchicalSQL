@@ -76,7 +76,7 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
         $q4 = new SQLQuery('col1', 'col3', 'tbl1', 'score < 10');
         $q4Str = (string)$q4;
         $merged = SQLQuery::merge($q1, $q4, $score);
-        $this->assertEquals("SELECT cal1 AS id, (col2) + (col3) AS score FROM tbl1 WHERE (score < 10) AND (score > 1)", (string)$merged);
+        $this->assertEquals("SELECT col1 AS id, (col2) + (col3) AS score FROM tbl1 WHERE (score < 10) AND (score > 1)", (string)$merged);
     }
     
 }
