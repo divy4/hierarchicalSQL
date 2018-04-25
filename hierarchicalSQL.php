@@ -97,8 +97,8 @@ function parseStrictQuery($query, $baseParser, $brackets, $operators) {
  * @return [String] A SQL query if $query is valid, null otherwise.
  */
 function queryToSQL($query, $baseParser, $brackets, $operators, $maxDepth, $maxSubQueries) {
-    // add missing brackets/operators
-    // TODO: add missing bracket/operator support
+    // add brackets/operators
+    $query = addBrackets($query, $brackets);
     // check if query is valid
     if (!validQuery($query, $brackets, $operators, $maxDepth, $maxSubQueries)) {
         return null;

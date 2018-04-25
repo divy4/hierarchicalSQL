@@ -57,15 +57,18 @@ class HierarchicalSQLTest extends \PHPUnit\Framework\TestCase {
 
         $query2 = '(1) AND (2) AND (3)';
         $q3Str = (string)$parser('3');
-        $this->assertEquals("SELECT t1.id AS id, t1.score * t2.score AS score FROM ($merged12Str) AS t1, ($q3Str) AS t2 WHERE (t1.id = t2.id)", (string)$this->parseStrictQuery($query2));
+        $this->assertEquals("SELECT t1.id AS id, t1.score * t2.score AS score FROM ($q3Str) AS t2, ($merged12Str) AS t1 WHERE (t1.id = t2.id)", (string)$this->parseStrictQuery($query2));
     
         $query3 = '((1) AND (2)) OR (3)';
-        $this->assertEquals("SELECT t1.id AS id, MAX(t1.score, t2.score) AS score FROM ($merged12Str) AS t1, ($q3Str) AS t2 WHERE (t1.id = t2.id)", (string)$this->parseStrictQuery($query3));
+        $this->assertEquals("SELECT t1.id AS id, MAX(t1.score, t2.score) AS score FROM ($q3Str) AS t2, ($merged12Str) AS t1 WHERE (t1.id = t2.id)", (string)$this->parseStrictQuery($query3));
     }
 
-    public function testSameTableMerge() {
+    public function testMerge() {
         $query1 = '(1) AND (4)';
-        $this->assertEquals("SELECT id AS id, col1 * col3 AS score FROM tbl1", (string)$this->parseStrictQuery($query1));
+        $this->assertEquals("SELECT id AS id, (col1) * (col3) AS score FROM tbl1", (string)$this->parseStrictQuery($query1));
+
+        $query2 = '(1) AND (5)';
+        $this->assertEquals("SELECT id AS id, (col1) * (col1) AS score FROM tbl1 WHERE (col1 > 2)", (string)$this->parseStrictQuery($query2));
     }
 
 }
