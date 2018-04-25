@@ -213,7 +213,7 @@ class SQLQuery {
             $out = "$out WHERE (" . $this->componentArrayToStr($this->where, ') AND (') . ')';
         }
         if ($this->having != null) {
-            $out = "$out GROUP BY id HAVING (" . $this->componentArrayToStr($this->where, ') AND (') . ')';
+            $out = "$out GROUP BY id HAVING (" . $this->componentArrayToStr($this->having, ') AND (') . ')';
         }
         if ($this->limit != null) {
             $out = "$out LIMIT $this->limit";

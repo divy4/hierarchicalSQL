@@ -49,6 +49,14 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
 
     public function testHaving() {
         $query = new SQLQuery('col1', 'col2', 'tbl1', null, 'col1 > 0 AND col1 < 10');
+        $this->assertEquals('SELECT col1 AS id, col2 AS score FROM tbl1 GROUP BY id HAVING (col1 > 0 AND col1 < 10)', (string)$query);
+        $query = new SQLQuery('col1', 'col2', ['tbl1'], null, ['col1 > 0', 'col1 < 10']);
+        $this->assertEquals('SELECT col1 AS id, col2 AS score FROM tbl1 GROUP BY id HAVING (col1 < 10) AND (col1 > 0)', (string)$query);
+    }
+
+    public function testLimit() {
+        $query = new SQLQuery('col1', 'col2', 'tbl1', null, null, 12345);
+        $this->assertEquals('SELECT col1 AS id, col2 AS score FROM tbl1 LIMIT 12345', (string)$query);
     }
 
     public function testMath() {
