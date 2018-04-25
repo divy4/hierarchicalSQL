@@ -182,13 +182,14 @@ class SQLQuery {
     public static function merge(SQLQuery $q1, SQLQuery $q2, string $score) {
         $merged = null;
         // matching tables
-        if ($q1->id == $q2->id && $q1->from == $q2->from) {
+        if ($q1->id == $q2->id && $q1->from == $q2->from && is_null($q1->limit) && is_null($q2->limit)) {
             // change operator to use values directly from query score functions
             $score = str_replace("t1.score", "($q1->score)", $score);
             $score = str_replace("t2.score", "($q2->score)", $score);
             // merge other components
             $where = SQLQuery::mergeComponentArrays($q1->where, $q2->where);
-            $merged = new SQLQuery($q1->id, $score, $q1->from, $where);
+            $having = SQLQuery::mergeComponentArrays($q1->having, $q2->having);
+            $merged = new SQLQuery($q1->id, $score, $q1->from, $where, $having);
         } else {
             $q1Str = (string)$q1;
             $q2Str = (string)$q2;
@@ -216,12 +217,11 @@ class SQLQuery {
             $out = "$out GROUP BY id HAVING (" . $this->componentArrayToStr($this->having, ') AND (') . ')';
         }
         if ($this->limit != null) {
-            $out = "$out LIMIT $this->limit";
+            $out = "$out ORDER BY score LIMIT $this->limit";
         }
         return $out;
     }
 
 }
-
 
 ?>
