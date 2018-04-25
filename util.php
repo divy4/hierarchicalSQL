@@ -7,6 +7,7 @@ namespace hierarchicalSQL;
  * @return A modified version of the string with brackets added around each query.
  */
 function addBrackets($query, $brackets) {
+    
     return $query;
 }
 
