@@ -2,14 +2,84 @@
 namespace hierarchicalSQL;
 
 /**
+ * Adds brackets to a subquery.
+ *
+ * @param string $subquery Part of a query, when split by its operators.
+ * @param array $brackets An associative array that maps an openning bracket to it's closing bracket.
+ * @param string $open The opening bracket that should be used to encase the subquery.
+ * @param string $close The closing bracket that should be used to encase the subquery.
+ * @return string $subquery with added brackets, null if there exists a bracket with non-whitespace characters on the wrong side of it.
+ */
+function addBracketsSubquery(string $subquery, array $brackets, string $open, string $close) {
+    $subquery = \trim($subquery);
+    $qLen = strlen($subquery);
+    $lastOpen = null;
+    $firstClose = null;
+    $seenNonBracket = false;
+    for ($i = 0; $i < $qLen; $i++) {
+        $char = $subquery[$i];
+        // open bracket
+        if (array_key_exists($char, $brackets)) {
+            if ($seenNonBracket) {
+                return null;
+            }
+            $lastOpen = $i;
+        // close bracket
+        } elseif (in_array($char, $brackets)) {
+            if (is_null($firstClose)) {
+                $firstClose = $i;
+            }
+        // non-whitespace
+        } elseif (!ctype_space($char)) {
+            if (is_integer($firstClose)) {
+                return null;
+            }
+            $seenNonBracket = true;
+        }
+    }
+    // no brackets
+    if (is_null($lastOpen) && is_null($firstClose)) {
+        return $open . $subquery . $close;
+    // only opens
+    } elseif (is_null($firstClose)) {
+        return substr($subquery, 0, $lastOpen + 1) . $open . substr($subquery, $lastOpen + 1, $qLen - $lastOpen - 1) . $close;
+    // only closes
+    } elseif (is_null($lastOpen)) {
+        return $open . substr($subquery, 0, $firstClose) . $close . substr($subquery, $firstClose, $qLen - $firstClose);
+    // encased
+    } else {
+        return $subquery;
+    }
+}
+
+/**
  * Adds missing brackets to a query.
  * 
- * @param [String] $query The text of a query.
- * @param [Array[String => String]] $brackets An associative array that maps an openning bracket to it's closing bracket.
- * @return A modified version of the string with brackets added around each query.
+ * @param string $query The text of a query.
+ * @param array $brackets An associative array that maps an openning bracket to it's closing bracket.
+ * @param array $operators An associative Array that maps an operator's string (e.g. 'OR') to a string that represents how the "score" column should be calculated in SQL when preforming a natural join between tables t1 and t2 that both contain a "score" column.
+ * @return string A modified version of the string with brackets added around each query. null if an error occurred.
  */
-function addBrackets($query, $brackets) {
-    return $query;
+function addBrackets(string $query, array $brackets, array $operators) {
+    // find operator positions
+    $pattern = '/^|$|' . join('|', array_keys($operators)) . '/';
+    $matches = array();
+    $numMatches = \preg_match_all($pattern, $query, $matches, PREG_OFFSET_CAPTURE);
+    if (is_null($numMatches)) {
+        return null;
+    }
+    // split query by operators
+    $open = array_keys($brackets)[0];
+    $close = $brackets[$open];
+    $matches = $matches[0];
+    $subqueries = array();
+    for ($i = 1; $i < $numMatches; $i++) {
+        $start = $matches[$i - 1][1] + strlen($matches[$i - 1][0]);
+        $subquery = substr($query, $start, $matches[$i][1] - $start);
+        $subqueries[$i - 1] = $matches[$i - 1][0] . addBracketsSubquery($subquery, $brackets, $open, $close);
+    }
+    //$subqueries[0] = addBracketsSubquery(, $brackets, $open, $close) ;
+    return $open . join('', $subqueries) . $close;
 }
 
 /**
