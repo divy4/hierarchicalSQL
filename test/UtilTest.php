@@ -15,6 +15,36 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
                                  'OR' => 'MAX(t1.score, t2.score)');
     }
 
+    public function testAddBracketsSubquery() {
+        $query = "no brackets";
+        $this->assertEquals("<no brackets>", addBracketsSubquery($query, $this->brackets, '<', '>'));
+        $query = "((open";
+        $this->assertEquals("((<open>", addBracketsSubquery($query, $this->brackets, '<', '>'));
+        $query = "close))";
+        $this->assertEquals("<close>))", addBracketsSubquery($query, $this->brackets, '<', '>'));
+        $query = "(brackets)";
+        $this->assertEquals("(brackets)", addBracketsSubquery($query, $this->brackets, '<', '>'));
+        $query = "bad(brackets";
+        $this->assertEquals(null, addBracketsSubquery($query, $this->brackets, '<', '>'));
+        $query = "bad)brackets2";
+        $this->assertEquals(null, addBracketsSubquery($query, $this->brackets, '<', '>'));
+    }
+
+    public function testAddBrackets() {
+        $query = "no op";
+        $this->assertEquals("((no op))", addBrackets($query, $this->brackets, $this->operators));
+        $query = "op AND op";
+        $this->assertEquals("((op)AND(op))", addBrackets($query, $this->brackets, $this->operators));
+        $query = "op AND op OR op";
+        $this->assertEquals("((op)AND(op)OR(op))", addBrackets($query, $this->brackets, $this->operators));
+        $query = "op AND (op)";
+        $this->assertEquals("((op)AND(op))", addBrackets($query, $this->brackets, $this->operators));
+        $query = "op AND (op OR op)";
+        $this->assertEquals("((op)AND((op)OR(op)))", addBrackets($query, $this->brackets, $this->operators));
+        $query = "(op AND op) OR op";
+        $this->assertEquals("(((op)AND(op))OR(op))", addBrackets($query, $this->brackets, $this->operators));
+    }
+
     public function testValidBrackets() {
         // no brackets/non bracket chars
         $this->assertTrue(validBrackets("asdf", $this->brackets));
