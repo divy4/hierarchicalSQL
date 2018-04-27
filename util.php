@@ -4,11 +4,29 @@ namespace hierarchicalSQL;
 /**
  * @param [String] $query The text of a query.
  * @param [Array[String => String]] $brackets An associative array that maps an openning bracket to it's closing bracket.
- * @return A modified version of the string with brackets added around each query.
+ * @param [Array[String => String]] $operators An associative Array that maps an operator's string (e.g. 'OR') to a string that represents how the "score" column should be calculated in SQL when preforming a natural join between tables t1 and t2 that both contain a "score" column.
+ * @return A modified version of the string with brackets added around each query. null if an error occurred.
  */
-function addBrackets($query, $brackets) {
-    
-    return $query;
+function addBrackets(string $query, array $brackets, array $operators) {
+    // find operator positions
+    $pattern = '/' . join('|', array_keys($operators)) . '/';
+    $matches = array();
+    $numMatches = \preg_match_all($pattern, $query, $matches, PREG_OFFSET_CAPTURE);
+    if (is_null($numMatches)) {
+        return null;
+    }
+    $open = array_keys($brackets)[0];
+    $close = $brackets[$open];
+    // return query if no operators are in it
+    if ($numMatches == 0) {
+        return $open . $query . $close;
+    }
+    // split query by operators
+    $matches = $matches[0];
+    $subqueries = array();
+    print("\nasdf: " . $matches[0][1] . "\n");
+    $subqueries[0] = \trim(substr($query, 0, $matches[0][1])) . $matches[0][0];
+    return $open . join('', $subqueries) . $close;
 }
 
 /**
