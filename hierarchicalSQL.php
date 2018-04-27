@@ -17,13 +17,15 @@ require 'util.php';
  *      An operator is a single or multi-character string that denotes a associative logical/numerical operator that defines how the scores of different subqueries should be joined.
  *      An operator can't contain any brackets.
  *      An operator can't contain whitespace unless non-whitespace characters appear at some point before and after it.
- *  
+ * Subqueries:
+ *      A subquery is any string in the query that doesn't contain brackets or operators.
+ *      All subqueries must be surrounded by a pair of brackets.
  * Other:
- *      All whitespace is ignored except when it's inbetween any non-whitespace characters that are part of an operator.
+ *      All whitespace is ignored except when it's inbetween any non-whitespace characters of the same subquery.
  * 
  * 
  * Relaxed query format guildlines:
- * Currently, these guidelines are the same as the strict query format guidelines. In future versions this requirement will be less strict.
+ * Currently, these guidelines are the same as the strict query format guidelines, except that a single subquery doesn't require brackets surrounding it.
  */
 
 /**
@@ -102,12 +104,12 @@ function queryToSQL($query, $baseParser, $brackets, $operators, $maxDepth, $maxS
         return null;
     }
     // add missing brackets
-    $query = addBrackets($query, $brackets);
-    if ($query = null) {
+    $query = addBrackets($query, $brackets, $operators);
+    if ($query == null) {
         return null;
     }
     // parse query
-    return parseStrictQuery($query, $baseParser, $brackets, $operators).toString();
+    return (string)parseStrictQuery($query, $baseParser, $brackets, $operators);
 }
 
 ?>
