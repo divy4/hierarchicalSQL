@@ -2,12 +2,13 @@
 namespace hierarchicalSQL;
 
 /**
+ * Adds missing brackets to a query.
+ * 
  * @param [String] $query The text of a query.
  * @param [Array[String => String]] $brackets An associative array that maps an openning bracket to it's closing bracket.
  * @return A modified version of the string with brackets added around each query.
  */
 function addBrackets($query, $brackets) {
-    
     return $query;
 }
 
