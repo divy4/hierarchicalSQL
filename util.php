@@ -219,13 +219,16 @@ function numSubqueries($query, $brackets) {
  * @param [Integer] $maxSubqueries The maximum number of subqueries (i.e. the number of $baseParser calls) the query can contain.
  */
 function validQuery($query, $brackets, $operators, $maxDepth, $maxSubqueries) {
-    if (depth($query, $brackets) != $maxDepth) {
+    if (depth($query, $brackets) > $maxDepth) {
+        print("\nasdf: depth\n");
         return false;
     } elseif (numSubqueries($query, $brackets) > $maxSubqueries) {
+        print("\nasdf: num sub\n");
         return false;
     } elseif (!validBrackets($query, $brackets)) {
+        print("\nasdf: brackets\n");
         return false;
-    } elseif (validOperators($query, $brackets, $operators)) {
+    } elseif (!validOperators($query, $brackets, $operators)) {
         return false;
     }
     return true;

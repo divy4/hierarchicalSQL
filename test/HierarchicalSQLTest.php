@@ -71,6 +71,24 @@ class HierarchicalSQLTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("SELECT id AS id, (col1) * (col1) AS score FROM tbl1 WHERE (col1 > 2)", (string)$this->parseStrictQuery($query2));
     }
 
+    public function testQueryToSQL() {
+        $parser = $this->parser;
+        $q1Str = (string)$parser('1');
+        $q2Str = (string)$parser('2');
+        $q3Str = (string)$parser('3');
+        $q4Str = (string)$parser('4');
+        $q5Str = (string)$parser('5');
+        $merged12Str = (string)$this->parseStrictQuery('(1) AND (2)');
+        $query = '1';
+        $this->assertEquals($q1Str, queryToSQL($query, $this->parser, $this->brackets, $this->operators, 10, 10));
+        $query = '1 AND 2';
+        $this->assertEquals("SELECT t1.id AS id, t1.score * t2.score AS score FROM ($q1Str) AS t1, ($q2Str) AS t2 WHERE (t1.id = t2.id)", queryToSQL($query, $this->parser, $this->brackets, $this->operators, 10, 10));
+        $query = '1 AND 4';
+        $this->assertEquals('SELECT id AS id, (col1) * (col3) AS score FROM tbl1', queryToSQL($query, $this->parser, $this->brackets, $this->operators, 10, 10));
+        $query = '(1 AND 2) OR 3';
+        $this->assertEquals("SELECT t1.id AS id, MAX(t1.score, t2.score) AS score FROM ($q3Str) AS t2, ($merged12Str) AS t1 WHERE (t1.id = t2.id)", queryToSQL($query, $this->parser, $this->brackets, $this->operators, 10, 10));
+    }
+
 }
 
 ?>
