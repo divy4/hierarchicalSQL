@@ -15,6 +15,21 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
                                  'OR' => 'MAX(t1.score, t2.score)');
     }
 
+    public function testAddBrackets() {
+        $query = "no op";
+        $this->assertEquals("(no op)", addBrackets($query, $this->brackets, $this->operators));
+        $query = "op AND op";
+        $this->assertEquals("((op)AND(op))", addBrackets($query, $this->brackets, $this->operators));
+        $query = "op AND op OR op";
+        $this->assertEquals("((no)AND(op)OR(op))", addBrackets($query, $this->brackets, $this->operators));
+        $query = "op AND (op)";
+        $this->assertEquals("((op)OR(op))", addBrackets($query, $this->brackets, $this->operators));
+        $query = "op AND (op OR op)";
+        $this->assertEquals("((op)AND((op)OR(op)))", addBrackets($query, $this->brackets, $this->operators));
+        $query = "(op AND op) OR op";
+        $this->assertEquals("(((op)AND(op))OR(op))", addBrackets($query, $this->brackets, $this->operators));
+    }
+
     public function testValidBrackets() {
         // no brackets/non bracket chars
         $this->assertTrue(validBrackets("asdf", $this->brackets));
